@@ -16,6 +16,10 @@ logWatcher.on('zone-change', function (data) {
 logWatcher.start();
 ```
 
+Here's an example of the output from the above script:
+
+> Knife Juggler has moved to FRIENDLY HAND
+
 ## Events
 
 The available events you can listen for are as follows:
