@@ -20,6 +20,10 @@ Here's an example of the output from the above script:
 
 > Knife Juggler has moved to FRIENDLY HAND
 
+Here's a little demo video as well:
+
+[]![](http://i.imgur.com/tJn2yua.jpg)](http://www.youtube.com/watch?v=ccXEcKrZxu4)
+
 ## Events
 
 The available events you can listen for are as follows:
@@ -65,7 +69,7 @@ Exmample player object:
 
 The `zone-change` event fires whenever a game entity moves from one zone to another. Most entities are cards, but heroes and hero powers are also considered game entities and will show up in these events as well. I'm working on a way to filter those out, but they don't cause any problems currently other than just being useless data most of the time.
 
-Hearthstone has 7 zones (that I'm aware of):
+Hearthstone has 8 zones (that I'm aware of):
 
 - DECK
 - HAND
