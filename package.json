@@ -1,0 +1,19 @@
+{
+  "name": "hearthstone-log-watcher",
+  "version": "1.0.0",
+  "description": "This simple module monitors the Hearthstone log file and emits events based on important events from the log.",
+  "main": "index.js",
+  "dependencies": {
+    "debug": "^2.1.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hearthstone",
+    "deck tracker"
+  ],
+  "author": "Chevex",
+  "license": "ISC"
+}
