@@ -98,3 +98,9 @@ Don't be confused by the `cardId` field. The ID is not consistent across games. 
 ## Planned
 
 Right now the log watcher only emits three events. The Hearthstone log contains A LOT of data and I believe there are a lot more events that this module *could* emit. For example, I believe there is enough data in the log to even track the damage/buff states of the minions in play. I'm going to experiment with the log more and see if I can pull out more useful data and provide useful events.
+
+## Frequently Asked Questions
+
+#### Q. How do I see all the cards in my deck?
+
+A. This module doesn't provide any functionality like that. This is just a log watcher that emits events that describe what it sees happening in the log. If you're building a deck tracker, you'll want to provide some kind of *deck builder* where users can fill out their deck beforehand. One helpful tool for this is [HearthstoneJSON.com](http://hearthstonejson.com/) where you can get a JSON blob of all the Hearthstone card data. You could use that JSON data to do a card name autocomplete input, making it super easy for users to build their deck in your tool.
