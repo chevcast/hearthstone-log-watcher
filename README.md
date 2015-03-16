@@ -90,3 +90,7 @@ Example zone change data object:
 ```
 
 Don't be confused by the `cardId` field. The ID is not consistent across games. Rather, the card ID is an entity ID that is assigned to that specific card for the duration of that game. It is what you need in order to track a card's status as the game progresses. For example, if you have two Knife Jugglers in your deck, you need to be able to tell which one is which. The card ID is the only way to track changes to a specific card during that game.
+
+## Planned
+
+Right now the log watcher only emits three events. The Hearthstone log contains A LOT of data and I believe there are a lot more events that this module *could* emit. For example, I believe there is enough data in the log to even track the damage/buff states of the minions in play. I'm going to experiment with the log more and see if I can pull out more useful data and provide useful events.
