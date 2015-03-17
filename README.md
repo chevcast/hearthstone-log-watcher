@@ -76,13 +76,13 @@ Hearthstone has 8 zones (that I'm aware of):
 - PLAY
 - PLAY (Hero)
 - PLAY (Hero Power)
-- WEAPON
+- PLAY (Weapon)
 - SECRET
 - GRAVEYARD
 
 The "PLAY (Hero)" and "PLAY (Hero Power)" zones are pretty useless to us because the heroes and hero powers go into their respective play zones at the beginning of the game and don't usually go to the GRAVEYARD zone until the game is over. There is one exception that I'm aware of and that is Jaraxxus. Jaraxxus sends the Gul'dan hero and the Life Tap hero power to the GRAVEYARD zone when he is played, and then the Jaraxxus entity himself and his INFERNO! hero power enter the respective play zones.
 
-The other zones are pretty straightforward. Cards in your deck are in the DECK zone. Cards in your hand are in the HAND zone. Minions on the board are in the PLAY zone. Secrets and weapons are in the SECRET and WEAPON zones respectively. When writing a deck tracker UI it usually makes the most sense to consider PLAY, SECRET, and WEAPON as a single zone; that way you can show visually whether a card is in your deck, your hand, in play, or destroyed.
+The other zones are pretty straightforward. Cards in your deck are in the DECK zone. Cards in your hand are in the HAND zone. Minions on the board are in the PLAY zone. Secrets and weapons are in the SECRET and PLAY (Weapon) zones respectively. When writing a deck tracker UI it usually makes the most sense to consider PLAY, SECRET, and PLAY (Weapon) as a single zone; that way you can show visually whether a card is in your deck, your hand, in play, or destroyed.
 
 The `zone-change` event receives an object as an argument with data that describes the event. It contains the card name, the card ID, the team the card belongs to, and the zone the card is moving to.
 
