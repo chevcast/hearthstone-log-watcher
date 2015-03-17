@@ -25,4 +25,21 @@ describe('hearthstone-log-watcher', function () {
     });
 
   });
+
+  describe('instance', function () {
+
+    it ('should allow the watcher to be started and stopped.', function () {
+      var logWatcher = new LogWatcher();
+      logWatcher.should.have.property('start').which.is.a('function');
+      logWatcher.should.have.property('stop').which.is.a('function');
+      logWatcher.should.not.have.ownProperty('stop');
+      logWatcher.start();
+      logWatcher.should.have.ownProperty('stop')
+      logWatcher.stop.should.be.a('function');
+      logWatcher.stop();
+      logWatcher.should.have.property('stop').and.be.a('function');
+      logWatcher.should.not.have.ownProperty('stop');
+    });
+
+  });
 });
