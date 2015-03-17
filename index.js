@@ -3,6 +3,7 @@ var util = require('util');
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
+var extend = require('extend');
 
 var defaultOptions = {};
 
@@ -32,7 +33,7 @@ if (/^win/.test(os.platform())) {
 
 // The watcher is an event emitter so we can emit events based on what we parse in the log.
 function LogWatcher(options) {
-    this.options = util._extend({}, defaultOptions, options);
+    this.options = extend({}, defaultOptions, options);
 
     log.main('config file path: %s', this.options.configFile);
     log.main('log file path: %s', this.options.logFile);
@@ -138,7 +139,7 @@ LogWatcher.prototype.start = function () {
 
   self.stop = function () {
     watcher.close();
-    self.stop = function () {};
+    delete self.stop;
   };
 };
 
