@@ -13,7 +13,7 @@ var log = {
   gameOver: debug('HLW:game-over')
 };
 
-// Determine the location of the config and log files.
+// Determine the default location of the config and log files.
 var configFile, logFile;
 if (/^win/.test(os.platform())) {
   log.main('Windows platform detected.');
@@ -28,17 +28,22 @@ if (/^win/.test(os.platform())) {
   logFile = path.join(process.env.HOME, 'Library', 'Logs', 'Unity', 'Player.log');
   configFile = path.join(process.env.HOME, 'Library', 'Preferences', 'Blizzard', 'Hearthstone', 'log.config');
 }
-log.main('config file path: %s', configFile);
-log.main('log file path: %s', logFile);
-
-// Copy local config file to the correct location.
-// We're just gonna do this every time.
-var localConfigFile = path.join(__dirname, 'log.config');
-fs.createReadStream(localConfigFile).pipe(fs.createWriteStream(configFile));
-log.main('Copied log.config file to force Hearthstone to write to its log file.');
 
 // The watcher is an event emitter so we can emit events based on what we parse in the log.
-function LogWatcher() {
+function LogWatcher(options) {
+    options = options || {};
+
+    this.configFile = options.configFile || configFile;
+    this.logFile = options.logFile || logFile;
+
+    log.main('config file path: %s', this.configFile);
+    log.main('log file path: %s', this.logFile);
+
+    // Copy local config file to the correct location.
+    // We're just gonna do this every time.
+    var localConfigFile = path.join(__dirname, 'log.config');
+    fs.createReadStream(localConfigFile).pipe(fs.createWriteStream(this.configFile));
+    log.main('Copied log.config file to force Hearthstone to write to its log file.');
 }
 inherits(LogWatcher, EventEmitter);
 
@@ -47,20 +52,20 @@ LogWatcher.prototype.start = function () {
 
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
-  var fileSize = fs.statSync(logFile).size;
+  var fileSize = fs.statSync(this.logFile).size;
   var players = [];
   var gameOverCount = 0;
-  var watcher = fs.watch(logFile, function (event, filename) {
+  var watcher = fs.watch(this.logFile, function (event, filename) {
 
     // We're only going to read the portion of the file that we have not read so far.
-    var newFileSize = fs.statSync(logFile).size;
+    var newFileSize = fs.statSync(self.logFile).size;
     var sizeDiff = newFileSize - fileSize;
     if (sizeDiff <= 0) {
       fileSize = newFileSize;
       return;
     }
     var buffer = new Buffer(sizeDiff);
-    var fileDescriptor = fs.openSync(logFile, 'r');
+    var fileDescriptor = fs.openSync(self.logFile, 'r');
     fs.readSync(fileDescriptor, buffer, 0, sizeDiff, fileSize + 1);
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
