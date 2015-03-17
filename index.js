@@ -4,6 +4,7 @@ var path = require('path');
 var os = require('os');
 
 var debug = require('debug');
+// Define some debug logging functions for easy and readable debug messages.
 var log = {
   main: debug('HLW'), 
   gameStart: debug('HLW:game-start'),
