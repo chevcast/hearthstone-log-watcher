@@ -22,7 +22,7 @@ Here's an example of the output from the above script:
 
 Here's a little demo video as well:
 
-[![](http://i.imgur.com/tJn2yua.jpg)](http://www.youtube.com/watch?v=ccXEcKrZxu4)
+[![](http://i.imgur.com/tKtxS8L.png)](http://www.youtube.com/watch?v=ccXEcKrZxu4)
 
 ## Events
 
