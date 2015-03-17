@@ -1,4 +1,5 @@
 var EventEmitter = require('events').EventEmitter;
+var inherits = require('util').inherits;
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
@@ -6,7 +7,7 @@ var os = require('os');
 var debug = require('debug');
 // Define some debug logging functions for easy and readable debug messages.
 var log = {
-  main: debug('HLW'), 
+  main: debug('HLW'),
   gameStart: debug('HLW:game-start'),
   zoneChange: debug('HLW:zone-change'),
   gameOver: debug('HLW:game-over')
@@ -37,8 +38,12 @@ fs.createReadStream(localConfigFile).pipe(fs.createWriteStream(configFile));
 log.main('Copied log.config file to force Hearthstone to write to its log file.');
 
 // The watcher is an event emitter so we can emit events based on what we parse in the log.
-var emitter = new EventEmitter();
-emitter.start = function () {
+function LogWatcher() {
+}
+inherits(LogWatcher, EventEmitter);
+
+LogWatcher.prototype.start = function () {
+  var self = this;
 
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
@@ -62,7 +67,7 @@ emitter.start = function () {
 
     // Iterate over each line in the buffer.
     buffer.toString().split('\n').forEach(function (line) {
-      
+
       // Check if a card is changing zones.
       var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
       if (zoneChangeRegex.test(line)) {
@@ -74,7 +79,7 @@ emitter.start = function () {
           zone: parts[4]
         };
         log.zoneChange('%s moved to %s %s.', data.cardName, data.team, data.zone)
-        emitter.emit('zone-change', data);
+        self.emit('zone-change', data);
       }
 
       // Check for players entering play and track their team IDs.
@@ -101,7 +106,7 @@ emitter.start = function () {
           }
         });
         log.gameStart('A game has started.')
-        emitter.emit('game-start', players);
+        self.emit('game-start', players);
       }
 
       // Check if the game is over.
@@ -118,7 +123,7 @@ emitter.start = function () {
         // When both players have lost, emit a game-over event.
         if (gameOverCount === 2) {
           log.gameOver('The current game has ended.');
-          emitter.emit('game-over', players);
+          self.emit('game-over', players);
           gameOverCount = 0;
           players = [];
         }
@@ -128,13 +133,13 @@ emitter.start = function () {
 
   });
 
-  emitter.stop = function () {
+  self.stop = function () {
     watcher.close();
-    emitter.stop = function () {};
+    self.stop = function () {};
   };
 };
 
-emitter.stop = function () {};
+LogWatcher.prototype.stop = function () {};
 
 // Set the entire module to our emitter.
-module.exports = emitter;
+module.exports = LogWatcher;
