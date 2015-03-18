@@ -69,8 +69,6 @@ LogWatcher.prototype.start = function () {
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
 
-    console.log('CHUNK', buffer.toString());
-
     // Iterate over each line in the buffer.
     buffer.toString().split(os.EOL).forEach(function (line) {
 
