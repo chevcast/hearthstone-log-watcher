@@ -70,7 +70,7 @@ LogWatcher.prototype.start = function () {
     fileSize = newFileSize;
 
     // Iterate over each line in the buffer.
-    buffer.toString().split('\n').forEach(function (line) {
+    buffer.toString().split(os.EOL).forEach(function (line) {
 
       // Check if a card is changing zones.
       var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
