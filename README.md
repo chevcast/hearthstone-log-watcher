@@ -55,7 +55,7 @@ Callback Arguments:
 
 - **players** - the same array of players from the `game-start` event except the players have an additional status property.
 
-Exmample player object:
+Example player object:
 
 ```javascript
 {
