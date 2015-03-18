@@ -65,9 +65,11 @@ LogWatcher.prototype.start = function () {
     }
     var buffer = new Buffer(sizeDiff);
     var fileDescriptor = fs.openSync(self.options.logFile, 'r');
-    fs.readSync(fileDescriptor, buffer, 0, sizeDiff, fileSize + 1);
+    fs.readSync(fileDescriptor, buffer, 0, sizeDiff, fileSize);
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
+
+    console.log('CHUNK', buffer.toString());
 
     // Iterate over each line in the buffer.
     buffer.toString().split(os.EOL).forEach(function (line) {
