@@ -5,7 +5,9 @@ var path = require('path');
 var os = require('os');
 var extend = require('extend');
 
-var defaultOptions = {};
+var defaultOptions = {
+  endOfLineChar: os.EOL
+};
 
 var debug = require('debug');
 // Define some debug logging functions for easy and readable debug messages.
@@ -70,7 +72,7 @@ LogWatcher.prototype.start = function () {
     fileSize = newFileSize;
 
     // Iterate over each line in the buffer.
-    buffer.toString().split(os.EOL).forEach(function (line) {
+    buffer.toString().split(options.endOfLineChar).forEach(function (line) {
 
       // Check if a card is changing zones.
       var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
