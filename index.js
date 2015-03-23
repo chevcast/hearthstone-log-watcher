@@ -53,10 +53,11 @@ LogWatcher.prototype.start = function () {
 
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
-  var fileSize = fs.statSync(this.options.logFile).size;
+  var fileSize = fs.statSync(self.options.logFile).size;
   var players = [];
   var gameOverCount = 0;
-  var watcher = fs.watch(this.options.logFile, function (event, filename) {
+  fs.watchFile(self.options.logFile, function (current, previous) {
+    if (current.mtime <= previous.mtime) { return; }
 
     // We're only going to read the portion of the file that we have not read so far.
     var newFileSize = fs.statSync(self.options.logFile).size;
@@ -140,7 +141,7 @@ LogWatcher.prototype.start = function () {
   });
 
   self.stop = function () {
-    watcher.close();
+    fs.unwatchFile(self.options.logFile);
     delete self.stop;
   };
 };
