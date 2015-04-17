@@ -7,7 +7,7 @@ This module is simple. It takes care of the low-level monitoring of the Hearthst
 > $ npm install hearthstone-log-watcher
 
 ```javascript
-var LogWatcher = require('heartstone-log-watcher');
+var LogWatcher = require('hearthstone-log-watcher');
 var logWatcher = new LogWatcher();
 
 logWatcher.on('zone-change', function (data) {
