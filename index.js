@@ -117,7 +117,7 @@ LogWatcher.prototype.start = function () {
       }
 
       // Check if the game is over.
-      var gameOverRegex = /Entity=(.*) tag=PLAYSTATE value=(LOST|WON)$/;
+      var gameOverRegex = /Entity=(.*) tag=PLAYSTATE value=(LOST|WON|TIED)$/;
       if (gameOverRegex.test(line)) {
         var parts = gameOverRegex.exec(line);
         // Set the status for the appropriate player.
