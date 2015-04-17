@@ -56,6 +56,8 @@ LogWatcher.prototype.start = function () {
   var fileSize = fs.statSync(self.options.logFile).size;
   var players = [];
   var gameOverCount = 0;
+  var data = '';
+  var lines;
   fs.watchFile(self.options.logFile, function (current, previous) {
     if (current.mtime <= previous.mtime) { return; }
 
@@ -72,8 +74,11 @@ LogWatcher.prototype.start = function () {
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
 
+    lines = (data + buffer.toString()).split(self.options.endOfLineChar)
+    data = lines.pop();
+
     // Iterate over each line in the buffer.
-    buffer.toString().split(self.options.endOfLineChar).forEach(function (line) {
+    lines.forEach(function (line) {
 
       // Check if a card is changing zones.
       var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
