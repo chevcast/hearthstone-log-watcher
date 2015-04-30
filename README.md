@@ -25,6 +25,19 @@ Here's a little demo video as well:
 
 [![](http://i.imgur.com/tKtxS8L.png)](http://www.youtube.com/watch?v=ccXEcKrZxu4)
 
+### Parse an existing log file
+
+Instead of watching the log file for changes using `logWatcher.start()` like in the example above, you can read an existing log from a file like this:
+
+```javascript
+var fs = require('fs');
+
+fs.readFile('./my-old-player-log.log', function(error, buffer) {
+	if (error) { return console.error(error); }
+	logWatcher.parseBuffer(buffer);
+});
+```
+
 ## Methods
 
 ### start()
