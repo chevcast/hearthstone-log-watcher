@@ -51,7 +51,7 @@ util.inherits(LogWatcher, EventEmitter);
 LogWatcher.prototype.start = function () {
   var self = this;
 
-  var gameContext = new GameContext;
+  var parserState = new ParserState;
 
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
@@ -72,7 +72,7 @@ LogWatcher.prototype.start = function () {
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
 
-    self.parseBuffer(buffer, gameContext);
+    self.parseBuffer(buffer, parserState);
   });
 
   self.stop = function () {
@@ -83,11 +83,11 @@ LogWatcher.prototype.start = function () {
 
 LogWatcher.prototype.stop = function () {};
 
-LogWatcher.prototype.parseBuffer = function (buffer, gameContext) {
+LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
   var self = this;
 
-  if (!gameContext) {
-    gameContext = new GameContext;
+  if (!parserState) {
+    parserState = new ParserState;
   }
 
   // Iterate over each line in the buffer.
@@ -111,7 +111,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, gameContext) {
     var newPlayerRegex = /Entity=(.*) tag=TEAM_ID value=(.)$/;
     if (newPlayerRegex.test(line)) {
       var parts = newPlayerRegex.exec(line);
-      gameContext.players.push({
+      parserState.players.push({
         name: parts[1],
         teamId: parseInt(parts[2])
       });
@@ -123,7 +123,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, gameContext) {
     if (mulliganCountRegex.test(line)) {
       var parts = mulliganCountRegex.exec(line);
       var teamId = parseInt(parts[1]);
-      gameContext.players.forEach(function (player) {
+      parserState.players.forEach(function (player) {
         if (teamId === player.teamId) {
           player.team = 'FRIENDLY';
         } else {
@@ -131,7 +131,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, gameContext) {
         }
       });
       log.gameStart('A game has started.')
-      self.emit('game-start', gameContext.players);
+      self.emit('game-start', parserState.players);
     }
 
     // Check if the game is over.
@@ -139,28 +139,28 @@ LogWatcher.prototype.parseBuffer = function (buffer, gameContext) {
     if (gameOverRegex.test(line)) {
       var parts = gameOverRegex.exec(line);
       // Set the status for the appropriate player.
-      gameContext.players.forEach(function (player) {
+      parserState.players.forEach(function (player) {
         if (player.name === parts[1]) {
           player.status = parts[2];
         }
       });
-      gameContext.gameOverCount++;
+      parserState.gameOverCount++;
       // When both players have lost, emit a game-over event.
-      if (gameContext.gameOverCount === 2) {
+      if (parserState.gameOverCount === 2) {
         log.gameOver('The current game has ended.');
-        self.emit('game-over', gameContext.players);
-        gameContext.reset();
+        self.emit('game-over', parserState.players);
+        parserState.reset();
       }
     }
 
   });
 };
 
-function GameContext() {
+function ParserState() {
   this.reset();
 }
 
-GameContext.prototype.reset = function () {
+ParserState.prototype.reset = function () {
   this.players = [];
   this.gameOverCount = 0;
 };
