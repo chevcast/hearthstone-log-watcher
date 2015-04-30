@@ -25,6 +25,30 @@ Here's a little demo video as well:
 
 [![](http://i.imgur.com/tKtxS8L.png)](http://www.youtube.com/watch?v=ccXEcKrZxu4)
 
+## Methods
+
+### start()
+
+Starts watching the log file and parses any changes to it.
+
+### stop()
+
+Stops the watcher.
+
+### parseBuffer(buffer [, gameContext])
+
+Parses a buffer (log file).
+
+Useful if you have log files that you want to parse without watching them. See the usage example above for how to get the buffer from existing files.
+
+The second argument, `gameContext`, is optional, and will be created for you if you omit it.
+
+If you want to use your own game context instance it must have these properties:
+
+* players: `Array` (keeps track of the players)
+* gameOverCount: `Number` (keeps track of when players won/lost/tied to know when the game is over)
+* reset: `Function` (resets the game context at the end of a game)
+
 ## Events
 
 The available events you can listen for are as follows:
