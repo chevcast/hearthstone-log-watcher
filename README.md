@@ -33,8 +33,8 @@ Instead of watching the log file for changes using `logWatcher.start()` like in 
 var fs = require('fs');
 
 fs.readFile('./my-old-player-log.log', function(error, buffer) {
-	if (error) { return console.error(error); }
-	logWatcher.parseBuffer(buffer);
+  if (error) { return console.error(error); }
+  logWatcher.parseBuffer(buffer);
 });
 ```
 
