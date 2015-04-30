@@ -51,11 +51,11 @@ util.inherits(LogWatcher, EventEmitter);
 LogWatcher.prototype.start = function () {
   var self = this;
 
+  var gameContext = new GameContext;
+
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
   var fileSize = fs.statSync(self.options.logFile).size;
-  var players = [];
-  var gameOverCount = 0;
   fs.watchFile(self.options.logFile, function (current, previous) {
     if (current.mtime <= previous.mtime) { return; }
 
@@ -72,72 +72,7 @@ LogWatcher.prototype.start = function () {
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
 
-    // Iterate over each line in the buffer.
-    buffer.toString().split(self.options.endOfLineChar).forEach(function (line) {
-
-      // Check if a card is changing zones.
-      var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
-      if (zoneChangeRegex.test(line)) {
-        var parts = zoneChangeRegex.exec(line);
-        var data = {
-          cardName: parts[1],
-          cardId: parseInt(parts[2]),
-          team: parts[3],
-          zone: parts[4]
-        };
-        log.zoneChange('%s moved to %s %s.', data.cardName, data.team, data.zone)
-        self.emit('zone-change', data);
-      }
-
-      // Check for players entering play and track their team IDs.
-      var newPlayerRegex = /Entity=(.*) tag=TEAM_ID value=(.)$/;
-      if (newPlayerRegex.test(line)) {
-        var parts = newPlayerRegex.exec(line);
-        players.push({
-          name: parts[1],
-          teamId: parseInt(parts[2])
-        });
-      }
-
-      // Look for mulligan status line that only shows for the local FRIENDLY player.
-      // Compare the ID to the team ID and set player zones appropriately.
-      var mulliganCountRegex = /id=(\d) ChoiceType=MULLIGAN Cancelable=False CountMin=0 CountMax=\d$/;
-      if (mulliganCountRegex.test(line)) {
-        var parts = mulliganCountRegex.exec(line);
-        var teamId = parseInt(parts[1]);
-        players.forEach(function (player) {
-          if (teamId === player.teamId) {
-            player.team = 'FRIENDLY';
-          } else {
-            player.team = 'OPPOSING';
-          }
-        });
-        log.gameStart('A game has started.')
-        self.emit('game-start', players);
-      }
-
-      // Check if the game is over.
-      var gameOverRegex = /Entity=(.*) tag=PLAYSTATE value=(LOST|WON|TIED)$/;
-      if (gameOverRegex.test(line)) {
-        var parts = gameOverRegex.exec(line);
-        // Set the status for the appropriate player.
-        players.forEach(function (player) {
-          if (player.name === parts[1]) {
-            player.status = parts[2];
-          }
-        });
-        gameOverCount++;
-        // When both players have lost, emit a game-over event.
-        if (gameOverCount === 2) {
-          log.gameOver('The current game has ended.');
-          self.emit('game-over', players);
-          gameOverCount = 0;
-          players = [];
-        }
-      }
-
-    });
-
+    self.parseBuffer(buffer, gameContext);
   });
 
   self.stop = function () {
@@ -147,6 +82,89 @@ LogWatcher.prototype.start = function () {
 };
 
 LogWatcher.prototype.stop = function () {};
+
+LogWatcher.prototype.parseBuffer = function (buffer, gameContext) {
+  var self = this;
+
+  if (!gameContext) {
+    gameContext = new GameContext;
+  }
+
+  // Iterate over each line in the buffer.
+  buffer.toString().split(this.options.endOfLineChar).forEach(function (line) {
+
+    // Check if a card is changing zones.
+    var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
+    if (zoneChangeRegex.test(line)) {
+      var parts = zoneChangeRegex.exec(line);
+      var data = {
+        cardName: parts[1],
+        cardId: parseInt(parts[2]),
+        team: parts[3],
+        zone: parts[4]
+      };
+      log.zoneChange('%s moved to %s %s.', data.cardName, data.team, data.zone)
+      self.emit('zone-change', data);
+    }
+
+    // Check for players entering play and track their team IDs.
+    var newPlayerRegex = /Entity=(.*) tag=TEAM_ID value=(.)$/;
+    if (newPlayerRegex.test(line)) {
+      var parts = newPlayerRegex.exec(line);
+      gameContext.players.push({
+        name: parts[1],
+        teamId: parseInt(parts[2])
+      });
+    }
+
+    // Look for mulligan status line that only shows for the local FRIENDLY player.
+    // Compare the ID to the team ID and set player zones appropriately.
+    var mulliganCountRegex = /id=(\d) ChoiceType=MULLIGAN Cancelable=False CountMin=0 CountMax=\d$/;
+    if (mulliganCountRegex.test(line)) {
+      var parts = mulliganCountRegex.exec(line);
+      var teamId = parseInt(parts[1]);
+      gameContext.players.forEach(function (player) {
+        if (teamId === player.teamId) {
+          player.team = 'FRIENDLY';
+        } else {
+          player.team = 'OPPOSING';
+        }
+      });
+      log.gameStart('A game has started.')
+      self.emit('game-start', gameContext.players);
+    }
+
+    // Check if the game is over.
+    var gameOverRegex = /Entity=(.*) tag=PLAYSTATE value=(LOST|WON|TIED)$/;
+    if (gameOverRegex.test(line)) {
+      var parts = gameOverRegex.exec(line);
+      // Set the status for the appropriate player.
+      gameContext.players.forEach(function (player) {
+        if (player.name === parts[1]) {
+          player.status = parts[2];
+        }
+      });
+      gameContext.gameOverCount++;
+      // When both players have lost, emit a game-over event.
+      if (gameContext.gameOverCount === 2) {
+        log.gameOver('The current game has ended.');
+        self.emit('game-over', gameContext.players);
+        gameContext.reset();
+      }
+    }
+
+  });
+};
+
+function GameContext() {
+  this.reset();
+}
+
+GameContext.prototype.reset = function () {
+  this.players = [];
+  this.gameOverCount = 0;
+};
+
 
 // Set the entire module to our emitter.
 module.exports = LogWatcher;
