@@ -25,6 +25,43 @@ Here's a little demo video as well:
 
 [![](http://i.imgur.com/tKtxS8L.png)](http://www.youtube.com/watch?v=ccXEcKrZxu4)
 
+### Parse an existing log file
+
+Instead of watching the log file for changes using `logWatcher.start()` like in the example above, you can read an existing log from a file like this:
+
+```javascript
+var fs = require('fs');
+
+fs.readFile('./my-old-player-log.log', function(error, buffer) {
+  if (error) { return console.error(error); }
+  logWatcher.parseBuffer(buffer);
+});
+```
+
+## Methods
+
+### start()
+
+Starts watching the log file and parses any changes to it.
+
+### stop()
+
+Stops the watcher.
+
+### parseBuffer(buffer [, parserState])
+
+Parses a buffer (log file).
+
+Useful if you have log files that you want to parse without watching them. See the usage example above for how to get the buffer from existing files.
+
+The second argument, `parserState`, is optional, and will be created for you if you omit it.
+
+If you want to use your own `parserState` instance it must have these properties:
+
+* **players**: `Array` (keeps track of the players)
+* **gameOverCount**: `Number` (keeps track of when players won/lost/tied to know when the game is over)
+* **reset**: `Function` (resets the `parserState` instance at the end of a game)
+
 ## Events
 
 The available events you can listen for are as follows:
