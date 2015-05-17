@@ -27,13 +27,13 @@ Here's a little demo video as well:
 
 ### Parse an existing log file
 
-Instead of watching the log file for changes using `logWatcher.start()` like in the example above, you can read an existing log from a file like this:
+`logWatcher.start()` begins reading any updates to the Hearthstone log file that occur after it has begun watching. If you need to parse a log from the beginning, you can use `parseBuffer`.
 
 ```javascript
 var fs = require('fs');
 
-fs.readFile('./my-old-player-log.log', function(error, buffer) {
-  if (error) { return console.error(error); }
+fs.readFile('./my-old-player-log.log', function(err, buffer) {
+  if (err) return console.error(err);
   logWatcher.parseBuffer(buffer);
 });
 ```
