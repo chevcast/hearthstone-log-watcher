@@ -136,7 +136,7 @@ Example zone change data object:
 }
 ```
 
-Don't be confused by the `entityId` field. The ID is not consistent across games. Rather, the card ID is an entity ID that is assigned to that specific card for the duration of that game. It is what you need in order to track a card's status as the game progresses. For example, if you have two Knife Jugglers in your deck, you need to be able to tell which one is which. The card ID is the only way to track changes to a specific card during that game. The `cardId` field never changes however and you may use it to look up card data.
+Don't be confused by the `entityId` field. The ID is not consistent across games. Rather, the entity ID is an identifier that is assigned to that specific card for the duration of just that match. It is what you need in order to track a card's status as the game progresses. For example, if you have two Knife Jugglers in your deck, you need to be able to tell which one is which. The entity ID is the only way to track changes to a specific card during that game. The `cardId` field never changes however, and you may use it to look up card data in a card database such as the one found at [HearthstoneJSON.com](http://hearthstonejson.com).
 
 ## Planned
 
