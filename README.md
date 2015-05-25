@@ -129,13 +129,14 @@ Example zone change data object:
 ```javascript
 {
   cardName: 'Knife Juggler',
-  cardId: 37,
+  cardId: 'NEW1_019',
+  entityId: 37,
   team: 'OPPOSING',
   zone: 'GRAVEYARD'
 }
 ```
 
-Don't be confused by the `cardId` field. The ID is not consistent across games. Rather, the card ID is an entity ID that is assigned to that specific card for the duration of that game. It is what you need in order to track a card's status as the game progresses. For example, if you have two Knife Jugglers in your deck, you need to be able to tell which one is which. The card ID is the only way to track changes to a specific card during that game.
+Don't be confused by the `entityId` field. The ID is not consistent across games. Rather, the card ID is an entity ID that is assigned to that specific card for the duration of that game. It is what you need in order to track a card's status as the game progresses. For example, if you have two Knife Jugglers in your deck, you need to be able to tell which one is which. The card ID is the only way to track changes to a specific card during that game. The `cardId` field never changes however and you may use it to look up card data.
 
 ## Planned
 
