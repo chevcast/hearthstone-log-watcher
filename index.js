@@ -63,6 +63,7 @@ LogWatcher.prototype.start = function () {
     var newFileSize = fs.statSync(self.options.logFile).size;
     var sizeDiff = newFileSize - fileSize;
     if (sizeDiff < 0) {
+      fileSize = 0;
       sizeDiff = newFileSize;
     }
     var buffer = new Buffer(sizeDiff);
