@@ -62,9 +62,8 @@ LogWatcher.prototype.start = function () {
     // We're only going to read the portion of the file that we have not read so far.
     var newFileSize = fs.statSync(self.options.logFile).size;
     var sizeDiff = newFileSize - fileSize;
-    if (sizeDiff <= 0) {
-      fileSize = newFileSize;
-      return;
+    if (sizeDiff < 0) {
+      sizeDiff = newFileSize;
     }
     var buffer = new Buffer(sizeDiff);
     var fileDescriptor = fs.openSync(self.options.logFile, 'r');
