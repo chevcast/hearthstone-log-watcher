@@ -56,7 +56,7 @@ LogWatcher.prototype.start = function () {
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
   var fileSize = fs.statSync(self.options.logFile).size;
-  fs.watchFile(self.options.logFile, function (current, previous) {
+  fs.watchFile(self.options.logFile, {interval: 500}, function (current, previous) {
     if (current.mtime <= previous.mtime) { return; }
 
     // We're only going to read the portion of the file that we have not read so far.
@@ -154,6 +154,51 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
       }
     }
 
+
+
+
+    // Check for mulligan state start
+    var mulliganStartRegex = /TAG_CHANGE Entity=GameEntity tag=STEP value=BEGIN_MULLIGAN/;
+    if (mulliganStartRegex.test(line)) {
+      parserState.currentlyMulligan = true;
+      var data = {
+        team: 'MULLIGAN',
+      };
+      log.zoneChange('Turn switched to %s.', data.team);
+      self.emit('turn-change', data);
+
+    }
+
+    // Check for mulligan state end
+    var mulliganEndRegex = /TAG_CHANGE Entity=GameEntity tag=NEXT_STEP value=MAIN_END/;
+    if (mulliganEndRegex.test(line)) {
+      parserState.currentlyMulligan = false;
+    }
+
+
+    // Check for turn switching
+    var turnSwitchingRegex = /END waiting for zone (FRIENDLY DECK|OPPOSING DECK)$/;
+    if (turnSwitchingRegex.test(line) && parserState.currentlyMulligan == false) {
+      var parts = turnSwitchingRegex.exec(line);
+
+      //Ignoring first junk trigger
+      if (parserState.firstTurnTrigger) {
+        var team = (parts[1] == 'FRIENDLY DECK') ? 'FRIENDLY' : 'OPPOSING';
+
+        var data = {
+          team: team,
+        };
+        log.zoneChange('Turn switched to %s.', data.team);
+        self.emit('turn-change', data);
+      } else {
+        parserState.firstTurnTrigger = true;
+      }
+
+
+    }
+
+
+
   });
 };
 
@@ -164,6 +209,8 @@ function ParserState() {
 ParserState.prototype.reset = function () {
   this.players = [];
   this.gameOverCount = 0;
+  this.currentlyMulligan = false;
+  this.firstTurnTrigger = false;
 };
 
 
