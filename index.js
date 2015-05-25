@@ -165,7 +165,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
         team: 'MULLIGAN',
       };
       log.zoneChange('Turn switched to %s.', data.team);
-      self.emit('turn', data);
+      self.emit('turn-change', data);
 
     }
 
@@ -189,7 +189,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
           team: team,
         };
         log.zoneChange('Turn switched to %s.', data.team);
-        self.emit('turn', data);
+        self.emit('turn-change', data);
       } else {
         parserState.firstTurnTrigger = true;
       }
