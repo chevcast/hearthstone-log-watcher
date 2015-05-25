@@ -3,6 +3,6 @@ var lw = new LogWatcher();
 lw.on('game-start', console.log.bind(console));
 lw.on('game-over', console.log.bind(console));
 lw.on('zone-change', console.log.bind(console));
-lw.on('turn', console.log.bind(console));
+lw.on('turn-change', console.log.bind(console));
 
 lw.start();
