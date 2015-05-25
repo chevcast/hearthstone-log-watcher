@@ -94,14 +94,15 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
   buffer.toString().split(this.options.endOfLineChar).forEach(function (line) {
 
     // Check if a card is changing zones.
-    var zoneChangeRegex = /name=(.*) id=(\d+).*to (FRIENDLY|OPPOSING) (.*)$/;
+    var zoneChangeRegex = /name=(.*) id=(\d+).*cardId=(.*) .* to (FRIENDLY|OPPOSING) (.*)$/;
     if (zoneChangeRegex.test(line)) {
       var parts = zoneChangeRegex.exec(line);
       var data = {
         cardName: parts[1],
-        cardId: parseInt(parts[2]),
-        team: parts[3],
-        zone: parts[4]
+        entityId: parseInt(parts[2]),
+        cardId: parts[3],
+        team: parts[4],
+        zone: parts[5]
       };
       log.zoneChange('%s moved to %s %s.', data.cardName, data.team, data.zone)
       self.emit('zone-change', data);
