@@ -122,7 +122,7 @@ The "PLAY (Hero)" and "PLAY (Hero Power)" zones are pretty useless to us because
 
 The other zones are pretty straightforward. Cards in your deck are in the DECK zone. Cards in your hand are in the HAND zone. Minions on the board are in the PLAY zone. Secrets and weapons are in the SECRET and PLAY (Weapon) zones respectively. When writing a deck tracker UI it usually makes the most sense to consider PLAY, SECRET, and PLAY (Weapon) as a single zone; that way you can show visually whether a card is in your deck, your hand, in play, or destroyed.
 
-The `zone-change` event receives an object as an argument with data that describes the event. It contains the card name, the card ID, the team the card belongs to, and the zone the card is moving to.
+The `zone-change` event receives an object as an argument with data that describes the event. It contains the card name, the card ID, the entity ID for that match, the team the card belongs to, and the zone the card is moving to.
 
 Example zone change data object:
 
@@ -147,3 +147,7 @@ Right now the log watcher only emits three events. The Hearthstone log contains 
 #### Q. How do I see all the cards in my deck?
 
 A. This module doesn't provide any functionality like that. This is just a log watcher that emits events that describe what it sees happening in the log. If you're building a deck tracker, you'll want to provide some kind of *deck builder* where users can fill out their deck beforehand. One helpful tool for this is [HearthstoneJSON.com](http://hearthstonejson.com/) where you can get a JSON blob of all the Hearthstone card data. You could use that JSON data to do a card name autocomplete input, making it super easy for users to build their deck in your tool.
+
+#### Q. Did you build a deck tracker that uses your own log watcher module?
+
+A. Why yes I did! You can find my Hearthpal Tracker [here](http://github.com/hearthpal/hearthpal-tracker).
