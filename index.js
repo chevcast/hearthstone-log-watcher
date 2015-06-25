@@ -23,7 +23,7 @@ if (/^win/.test(os.platform())) {
   log.main('Windows platform detected.');
   var programFiles = 'Program Files';
   if (/64/.test(os.arch())) {
-    programFiles += '(x86)';
+    programFiles += ' (x86)';
   }
   defaultOptions.logFile = path.join('C:', programFiles, 'Hearthstone', 'Hearthstone_Data', 'output_log.txt');
   defaultOptions.configFile = path.join(process.env.LOCALAPPDATA, 'Blizzard', 'Hearthstone', 'log.config');
