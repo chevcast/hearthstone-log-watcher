@@ -11,7 +11,7 @@ var LogWatcher = require('hearthstone-log-watcher');
 var logWatcher = new LogWatcher();
 
 logWatcher.on('zone-change', function (data) {
-  console.log(data.cardName + ' has moved to ' + data.team + ' ' + data.zone);
+  console.log(data.cardName + ' has moved from ' + data.fromTeam + ' ' + data.fromZone + ' to ' + data.toTeam + ' ' + data.toZone);
 });
 
 logWatcher.start();
@@ -19,7 +19,7 @@ logWatcher.start();
 
 Here's an example of the output from the above script:
 
-> Knife Juggler has moved to FRIENDLY HAND
+> Knife Juggler has moved from FRIENDLY DECK to FRIENDLY HAND
 
 Here's a little demo video as well:
 
@@ -59,6 +59,7 @@ The second argument, `parserState`, is optional, and will be created for you if 
 If you want to use your own `parserState` instance it must have these properties:
 
 * **players**: `Array` (keeps track of the players)
+* **playerCount**: `Number` (keeps track of when players enter the game to know when to emit the start event)
 * **gameOverCount**: `Number` (keeps track of when players won/lost/tied to know when the game is over)
 * **reset**: `Function` (resets the `parserState` instance at the end of a game)
 
@@ -79,7 +80,7 @@ Example player object:
 ```javascript
 {
   name: 'Hologrid',
-  teamId: 1,
+  id: 1,
   team: 'FRIENDLY'
 }
 ```
@@ -97,7 +98,7 @@ Example player object:
 ```javascript
 {
   name: 'Hologrid',
-  teamId: 1,
+  id: 1,
   team: 'FRIENDLY',
   status: 'WON'
 }
@@ -122,7 +123,7 @@ The "PLAY (Hero)" and "PLAY (Hero Power)" zones are pretty useless to us because
 
 The other zones are pretty straightforward. Cards in your deck are in the DECK zone. Cards in your hand are in the HAND zone. Minions on the board are in the PLAY zone. Secrets and weapons are in the SECRET and PLAY (Weapon) zones respectively. When writing a deck tracker UI it usually makes the most sense to consider PLAY, SECRET, and PLAY (Weapon) as a single zone; that way you can show visually whether a card is in your deck, your hand, in play, or destroyed.
 
-The `zone-change` event receives an object as an argument with data that describes the event. It contains the card name, the card ID, the entity ID for that match, the team the card belongs to, and the zone the card is moving to.
+The `zone-change` event receives an object as an argument with data that describes the event. It contains the card name, the card ID, the entity ID for that match, the team and zone the card came from, and the team and zone the card is moving to.
 
 Example zone change data object:
 
@@ -131,8 +132,10 @@ Example zone change data object:
   cardName: 'Knife Juggler',
   cardId: 'NEW1_019',
   entityId: 37,
-  team: 'OPPOSING',
-  zone: 'GRAVEYARD'
+  fromTeam: 'OPPOSING',
+  fromZone: 'PLAY',
+  toTeam: 'OPPOSING',
+  toZone: 'GRAVEYARD'
 }
 ```
 
@@ -151,3 +154,7 @@ A. This module doesn't provide any functionality like that. This is just a log w
 #### Q. Did you build a deck tracker that uses your own log watcher module?
 
 A. Why yes I did! You can find my Hearthpal Tracker [here](http://github.com/hearthpal/hearthpal-tracker).
+
+#### Q. Why do some events seem to happen out of order?
+
+A. This is not the fault of the log watcher. Hearthstone performs many things asynchronously even though the game appears to be very synchronous where things happen in a certain order. Unfortunately, Hearthstone does not always write to its own log file in the order in which things actually happened. For example, you may receive a game over event seconds before a card transition event, even if the transition occurred before the game ended. It's usually not a big deal but it's something to be aware of.
