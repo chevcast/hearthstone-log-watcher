@@ -17,7 +17,7 @@
     "sinon-chai": "^2.8.0"
   },
   "scripts": {
-    "compile": "babel -d lib/ src/",
+    "compile": "babel -d lib/ src/ && cp src/log.config lib/",
     "prepublish": "npm run compile",
     "start": "node bootstrap",
     "test": "mocha"

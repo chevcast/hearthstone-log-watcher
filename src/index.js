@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
-var util = require('util');
-var fs = require('fs');
-var path = require('path');
-var os = require('os');
-var extend = require('extend');
+import util from 'util';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import extend from 'extend';
 
-var findPlayerName = require('./find-player-name');
-var newPlayerIds = require('./new-player-ids');
-var handleZoneChanges = require('./handle-zone-changes');
+import findPlayerName from './find-player-name';
+import newPlayerIds from './new-player-ids';
+import handleZoneChanges from './handle-zone-changes';
 
 var defaultOptions = {
   endOfLineChar: os.EOL
@@ -46,7 +46,7 @@ function LogWatcher(options) {
 
     // Copy local config file to the correct location.
     // We're just gonna do this every time.
-    var localConfigFile = path.join(__dirname, 'log.config');
+    var localConfigFile = path.join(__dirname, './log.config');
     fs.createReadStream(localConfigFile).pipe(fs.createWriteStream(this.options.configFile));
     log.main('Copied log.config file to force Hearthstone to write to its log file.');
 }
