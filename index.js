@@ -97,7 +97,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
   // Iterate over each line in the buffer.
   buffer.toString().split(this.options.endOfLineChar).forEach(function (line) {
 
-    parserState.players = handleZoneChanges(line, parserState);
+    parserState = handleZoneChanges(line, parserState, self.emit, log);
     parserState.players = newPlayerIds(line, parserState.players);
     parserState.players = findPlayerName(line, parserState.players);
 
