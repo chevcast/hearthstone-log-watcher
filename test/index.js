@@ -5,7 +5,7 @@ var sinonChai = require('sinon-chai');
 chai.should();
 chai.use(sinonChai);
 
-var LogWatcher = require('../index');
+var LogWatcher = require('../src/index');
 var findPlayerName = require('../lib/find-player-name');
 var newPlayerIds = require('../lib/new-player-ids');
 var handleZoneChanges = require('../lib/handle-zone-changes');
