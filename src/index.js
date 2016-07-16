@@ -1,13 +1,13 @@
-var EventEmitter = require('events').EventEmitter;
+import { EventEmitter } from 'events';
 var util = require('util');
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
 var extend = require('extend');
 
-var findPlayerName = require('../lib/find-player-name');
-var newPlayerIds = require('../lib/new-player-ids');
-var handleZoneChanges = require('../lib/handle-zone-changes');
+var findPlayerName = require('./find-player-name');
+var newPlayerIds = require('./new-player-ids');
+var handleZoneChanges = require('./handle-zone-changes');
 
 var defaultOptions = {
   endOfLineChar: os.EOL

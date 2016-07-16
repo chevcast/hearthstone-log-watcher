@@ -17,8 +17,9 @@
     "sinon-chai": "^2.8.0"
   },
   "scripts": {
-    "test": "mocha",
-    "start": "node src/bootstrap"
+    "compile": "babel -d lib/ src/",
+    "start": "node bootstrap",
+    "test": "mocha"
   },
   "keywords": [
     "hearthstone",
