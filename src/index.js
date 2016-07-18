@@ -90,11 +90,11 @@ LogWatcher.prototype.stop = function () {};
 
 LogWatcher.prototype.executor = function (line, state) {
   var self = this;
-  
-  state = handleZoneChanges(line, state, self.emit, log);
+
+  state = handleZoneChanges(line, state, self.emit.bind(self), log);
   state.players = newPlayerIds(line, state.players);
   state.players = findPlayerName(line, state.players);
-  state = handleGameOver(line, state, self.emit, log);
+  state = handleGameOver(line, state, self.emit.bind(self), log);
 
   return state;
 }
