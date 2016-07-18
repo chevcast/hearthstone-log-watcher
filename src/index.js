@@ -8,6 +8,7 @@ import extend from 'extend';
 import findPlayerName from './find-player-name';
 import newPlayerIds from './new-player-ids';
 import handleZoneChanges from './handle-zone-changes';
+import handleGameOver from './handle-game-over';
 
 var defaultOptions = {
   endOfLineChar: os.EOL
@@ -87,6 +88,18 @@ LogWatcher.prototype.start = function () {
 
 LogWatcher.prototype.stop = function () {};
 
+LogWatcher.prototype.executor = function (line, state) {
+  var self = this;
+  
+  state = handleZoneChanges(line, state, self.emit, log);
+  state.players = newPlayerIds(line, state.players);
+  state.players = findPlayerName(line, state.players);
+  state = handleGameOver(line, state, self.emit, log);
+
+  return state;
+}
+
+
 LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
   var self = this;
 
@@ -96,13 +109,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
 
   // Iterate over each line in the buffer.
   buffer.toString().split(this.options.endOfLineChar).forEach(function (line) {
-
-    parserState = handleZoneChanges(line, parserState, self.emit, log);
-    parserState.players = newPlayerIds(line, parserState.players);
-    parserState.players = findPlayerName(line, parserState.players);
-
-    
-
+    parserState = self.executor(line, parserState);
   });
 };
 

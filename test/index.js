@@ -12,6 +12,9 @@ var handleZoneChanges = require('../src/handle-zone-changes');
 var handleGameOver = require('../src/handle-game-over');
 var os = require('os');
 
+const fs = require('fs');
+const readline = require('readline');
+
 describe('hearthstone-log-watcher', function () {
 
   var sandbox, log, emit;
@@ -63,6 +66,38 @@ describe('hearthstone-log-watcher', function () {
       logWatcher.should.not.have.ownProperty('stop');
     });
 
+  });
+
+  describe('executor', function () {
+    it('parses a log file', function (done) {
+      this.timeout(250000);
+      var logWatcher = new LogWatcher();
+      logWatcher.emit = sandbox.spy();
+      var parserState = { players: [], playerCount: 0, gameOverCount: 0, reset: sandbox.spy() };
+      var expectedState = {
+        gameOverCount: 2,
+        players: [
+          {name: 'artaios', entityId: 2, id: 1, status: 'LOST', team: 'FRIENDLY' },
+          {name: 'Phaust', entityId: 3, id: 2, status: 'WON', team: 'OPPOSING'}
+        ],
+        playerCount: 2
+      };
+      var lineReader = readline.createInterface({
+        input: fs.createReadStream(__dirname + '/fixture/hearthstone_2016_07_14_23_06_31.log')
+      });
+
+      lineReader.on('line', function (line) {
+        parserState = logWatcher.executor(line, parserState)
+      });
+
+      lineReader.on('close', function() {
+        expect(parserState.players).to.deep.equal(expectedState.players);
+        expect(parserState.playerCount).to.deep.equal(expectedState.playerCount);
+        expect(parserState.gameOverCount).to.deep.equal(expectedState.gameOverCount);
+        expect(parserState.reset).to.have.been.called;
+        done();
+      });
+    });
   });
 
   describe('new player parsing', function () {

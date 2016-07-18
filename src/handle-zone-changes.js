@@ -19,7 +19,7 @@ var handleZoneChanges = function (line, parserState, emit, log) {
     // Only zone transitions show both the player ID and the friendly or opposing zone type. By tracking entities going into
     // the "PLAY (Hero)" zone we can then set the player's team to FRIENDLY or OPPOSING. Once both players are associated with
     // a team we can emite the game-start event.
-    if (data.toZone === 'PLAY (Hero)') {
+    if (parserState.playerCount < 2 && data.toZone === 'PLAY (Hero)') {
       parserState.players.forEach(function (player) {
         if (player.id === data.playerId) {
           player.team = data.toTeam;
