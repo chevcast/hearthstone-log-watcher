@@ -1,9 +1,14 @@
-var EventEmitter = require('events').EventEmitter;
-var util = require('util');
-var fs = require('fs');
-var path = require('path');
-var os = require('os');
-var extend = require('extend');
+import { EventEmitter } from 'events';
+import util from 'util';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import extend from 'extend';
+
+import findPlayerName from './find-player-name';
+import newPlayerIds from './new-player-ids';
+import handleZoneChanges from './handle-zone-changes';
+import handleGameOver from './handle-game-over';
 
 var defaultOptions = {
   endOfLineChar: os.EOL
@@ -42,7 +47,7 @@ function LogWatcher(options) {
 
     // Copy local config file to the correct location.
     // We're just gonna do this every time.
-    var localConfigFile = path.join(__dirname, 'log.config');
+    var localConfigFile = path.join(__dirname, './log.config');
     fs.createReadStream(localConfigFile).pipe(fs.createWriteStream(this.options.configFile));
     log.main('Copied log.config file to force Hearthstone to write to its log file.');
 }
@@ -83,6 +88,18 @@ LogWatcher.prototype.start = function () {
 
 LogWatcher.prototype.stop = function () {};
 
+LogWatcher.prototype.executor = function (line, state) {
+  var self = this;
+
+  state = handleZoneChanges(line, state, self.emit.bind(self), log);
+  state.players = newPlayerIds(line, state.players);
+  state.players = findPlayerName(line, state.players);
+  state = handleGameOver(line, state, self.emit.bind(self), log);
+
+  return state;
+}
+
+
 LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
   var self = this;
 
@@ -92,70 +109,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
 
   // Iterate over each line in the buffer.
   buffer.toString().split(this.options.endOfLineChar).forEach(function (line) {
-
-    // Check if a card is changing zones.
-    var zoneChangeRegex = /^\[Zone\] ZoneChangeList.ProcessChanges\(\) - id=\d* local=.* \[name=(.*) id=(\d*) zone=.* zonePos=\d* cardId=(.*) player=(\d)\] zone from ?(FRIENDLY|OPPOSING)? ?(.*)? -> ?(FRIENDLY|OPPOSING)? ?(.*)?$/
-    if (zoneChangeRegex.test(line)) {
-      var parts = zoneChangeRegex.exec(line);
-      var data = {
-        cardName: parts[1],
-        entityId: parseInt(parts[2]),
-        cardId: parts[3],
-        playerId: parseInt(parts[4]),
-        fromTeam: parts[5],
-        fromZone: parts[6],
-        toTeam: parts[7],
-        toZone: parts[8]
-      };
-      log.zoneChange('%s moved from %s %s to %s %s.', data.cardName, data.fromTeam, data.fromZone, data.toTeam, data.toZone);
-      self.emit('zone-change', data);
-
-      // Only zone transitions show both the player ID and the friendly or opposing zone type. By tracking entities going into
-      // the "PLAY (Hero)" zone we can then set the player's team to FRIENDLY or OPPOSING. Once both players are associated with
-      // a team we can emite the game-start event.
-      if (data.toZone === 'PLAY (Hero)') {
-        parserState.players.forEach(function (player) {
-          if (player.id === data.playerId) {
-            player.team = data.toTeam;
-            parserState.playerCount++;
-            if (parserState.playerCount === 2) {
-              log.gameStart('A game has started.');
-              self.emit('game-start', parserState.players);
-            }
-          }
-        });
-      }
-    }
-
-    // Check for players entering play and track their team IDs.
-    var newPlayerRegex = /\[Power\] GameState\.DebugPrintPower\(\) - TAG_CHANGE Entity=(.*) tag=PLAYER_ID value=(.)$/;
-    if (newPlayerRegex.test(line)) {
-      var parts = newPlayerRegex.exec(line);
-      parserState.players.push({
-        name: parts[1],
-        id: parseInt(parts[2])
-      });
-    }
-
-    // Check if the game is over.
-    var gameOverRegex = /\[Power\] GameState\.DebugPrintPower\(\) - TAG_CHANGE Entity=(.*) tag=PLAYSTATE value=(LOST|WON|TIED)$/;
-    if (gameOverRegex.test(line)) {
-      var parts = gameOverRegex.exec(line);
-      // Set the status for the appropriate player.
-      parserState.players.forEach(function (player) {
-        if (player.name === parts[1]) {
-          player.status = parts[2];
-        }
-      });
-      parserState.gameOverCount++;
-      // When both players have lost, emit a game-over event.
-      if (parserState.gameOverCount === 2) {
-        log.gameOver('The current game has ended.');
-        self.emit('game-over', parserState.players);
-        parserState.reset();
-      }
-    }
-
+    parserState = self.executor(line, parserState);
   });
 };
 
